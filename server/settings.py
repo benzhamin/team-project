@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-+)qq$9+@fvfg6$=nwwn37cws%7r9r2*y#r%q32d1=6^j@e43xa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['92.255.79.122']
+ALLOWED_HOSTS = ['92.255.79.122', '*']
 
 
 # Application definition
@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'accounts',
     'medlink',
     'drf_spectacular',
+    'chat',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +76,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'server.wsgi.application'
 
+ASGI_APPLICATION = "server.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -178,3 +190,6 @@ REST_FRAMEWORK = {
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

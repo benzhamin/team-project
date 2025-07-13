@@ -44,8 +44,10 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
+    patient_name = serializers.CharField(source='patient.user.get_full_name', read_only=True)
+
     class Meta:
         model = Review
-        fields = '__all__'
-        read_only_fields = ['doctor', 'patient']  # doctor and patient will be set from request, not input
-
+        fields = ['id', 'doctor', 'doctor_name', 'patient', 'patient_name', 'rating', 'comment', 'created_at']
+        read_only_fields = ['created_at']

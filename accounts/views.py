@@ -93,7 +93,6 @@ class DoctorProfileAPIView(APIView):
             serializer.save(user=request.user)  # Ensure user stays attached
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     
 
 class SpecializationViewSet(viewsets.ModelViewSet):
@@ -108,13 +107,19 @@ class SpecializationViewSet(viewsets.ModelViewSet):
     
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """
-    A ViewSet for viewing and editing Review instances.
-    """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Automatically set the patient to the logged-in user
+        # Автоустановка пациента на текущего пользователя
         serializer.save(patient=self.request.user.patient_profile)
+
+    def get_queryset(self):
+        # Фильтрация: пациент видит свои, врач — свои
+        user = self.request.user
+        if user.role == 'doctor':
+            return Review.objects.filter(doctor=user.doctor_profile)
+        elif user.role == 'patient':
+            return Review.objects.filter(patient=user.patient_profile)
+        return Review.objects.none()
