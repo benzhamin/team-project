@@ -159,8 +159,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
+    'TITLE': 'MEDLINK API',
     'DESCRIPTION': 'API documentation for your project.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,

@@ -1,23 +1,31 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, permissions
+from .models import Chat, Message
+from .serializers import ChatSerializer, MessageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import Message, MessageThread
-from .serializers import MessageSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
-class FileUploadView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)
+class ChatViewSet(viewsets.ModelViewSet):
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        file = request.data.get("file")
-        thread_id = request.data.get("thread_id")
+    def perform_create(self, serializer):
+        chat = serializer.save()
+        chat.participants.add(self.request.user)
 
-        message = Message.objects.create(
-            sender=request.user,
-            thread_id=thread_id,
-            type="file",
-            file=file
-        )
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticated]
 
-        return Response(MessageSerializer(message).data)
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        message = self.get_object()
+        message.is_read = True
+        message.save()
+        return Response({'status': 'marked as read'})

@@ -19,18 +19,6 @@ class Appointment(models.Model):
     def __str__(self):
         return f"{self.patient} -> {self.doctor} @ {self.datetime}"
 
-
-# 💬 Чат (сообщения)
-class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
-    timestamp = models.DateTimeField(auto_now_add=True)
-    text = models.TextField()
-
-    def __str__(self):
-        return f"{self.sender} -> {self.receiver} : {self.text[:30]}"
-
-
 # 📁 Медицинские файлы
 class MedicalFile(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medical_files')

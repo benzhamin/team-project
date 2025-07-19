@@ -31,12 +31,6 @@ profile_urls = [
     path('profile/doctor/', DoctorProfileAPIView.as_view(), name='doctor-profile'),
 ]
 
-# Documentation-related URLs
-docs_urls = [
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-]
-
 # Specialization-related URLs
 router = DefaultRouter()
 router.register(r'specializations', SpecializationViewSet, basename='specialization')
@@ -46,6 +40,5 @@ router.register(r'reviews', ReviewViewSet, basename='review')
 urlpatterns = [
     path('auth/', include(auth_urls)),  # Grouped under 'auth/'
     path('', include(profile_urls)),   # Profile endpoints at the root
-    path('', include(docs_urls)),      # Documentation endpoints at the root
     path('', include(router.urls)),  # Specialization endpoints at the root
 ]

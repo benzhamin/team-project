@@ -35,12 +35,16 @@ class PatientProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']  # user will be set from request, not input
 
 
+
 class DoctorProfileSerializer(serializers.ModelSerializer):
-    specializations = SpecializationSerializer(many=True, read_only=True)
+    specializations = serializers.SerializerMethodField()
+
     class Meta:
         model = DoctorProfile
-        fields = '__all__, specializations'
-        read_only_fields = ['user']  # user will be set from request, not input
+        fields = ['id', 'user', 'phone_number', 'gender', 'experience_years', 'bio', 'rating', 'specializations']
+
+    def get_specializations(self, obj):
+        return [spec.specialization.name for spec in obj.specializations.all()]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
