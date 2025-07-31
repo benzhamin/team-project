@@ -54,7 +54,7 @@ class LogoutUserView(APIView):
 
 
 class PatientProfileAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, user):
         # Get the patient profile for the logged-in user, or 404 if none
@@ -75,7 +75,7 @@ class PatientProfileAPIView(APIView):
 
 
 class DoctorProfileAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, user):
         # Get the doctor profile for the logged-in user, or 404 if none
@@ -109,7 +109,7 @@ class SpecializationViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         # Автоустановка пациента на текущего пользователя

@@ -2,23 +2,6 @@ from django.db import models
 from accounts.models import User
 
 
-# 📅 Запись на консультацию
-class Appointment(models.Model):
-    STATUS_CHOICES = (
-        ('scheduled', 'Запланирована'),
-        ('completed', 'Завершена'),
-        ('cancelled', 'Отменена'),
-    )
-
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
-    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments_doctor')
-    datetime = models.DateTimeField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
-    notes = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.patient} -> {self.doctor} @ {self.datetime}"
-
 # 📁 Медицинские файлы
 class MedicalFile(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medical_files')
@@ -29,3 +12,35 @@ class MedicalFile(models.Model):
 
     def __str__(self):
         return f"{self.patient} - {self.file.name}"
+    
+
+# models.py
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class AppointmentRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointment_requests')
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    reason = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Request from {self.patient.username} to {self.doctor.username} - {self.status}"
+
+
+class Appointment(models.Model):
+    appointment_request = models.OneToOneField(AppointmentRequest, on_delete=models.CASCADE)
+    scheduled_time = models.DateTimeField()
+    accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='appointments_approved')
+
+    def __str__(self):
+        return f"Appointment on {self.scheduled_time} with Dr. {self.appointment_request.doctor.username}"
