@@ -4,18 +4,20 @@ from .serializer import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
-from .models import PatientProfile, DoctorProfile, Specialization, DoctorSpecialization, Review, User
-from rest_framework import status, generics, viewsets
+from .models import PatientProfile, DoctorProfile, Specialization, Review, User
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
+from rest_framework.permissions import AllowAny
+from rest_framework.generics import GenericAPIView
 
 
+class RegisterUserView(GenericAPIView):
+    serializer_class = UserRegisterSerializer
 
-
-class RegisterUserView(APIView):
     def post(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user=user)
@@ -27,22 +29,23 @@ class RegisterUserView(APIView):
         
         return Response({'error': serializer.errors}, status=400)
 
-    
 
-class LoginUserView(APIView):
+class LoginUserView(GenericAPIView):
+    serializer_class = LoginUserSerializer
 
     def post(self, request):
-        serializers = LoginUserSerilalizer(data = request.data)
-        if serializers.is_valid():
-            username = request.data.get('username')    
-            password = request.data.get('password')  
-            user   = authenticate(username=username , password=password)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']    
+            password = serializer.validated_data['password']  
+            user = authenticate(username=username , password=password)
             if user:
-                refresh  = RefreshToken.for_user(user=user)
-                return Response({'user':serializers.data, 'refresh': str(refresh), 'access':str(refresh.access_token)},
+                refresh = RefreshToken.for_user(user=user)
+                return Response({'user': serializer.data, 'refresh': str(refresh), 'access': str(refresh.access_token)},
                              status=201)
-            return Response({'error': 'not fount'}, status=401)
+            return Response({'error': 'not found'}, status=401)
 
+        return Response({'error': serializer.errors}, status=400)
 
 class LogoutUserView(APIView):
 

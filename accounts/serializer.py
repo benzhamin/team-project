@@ -5,19 +5,17 @@ from .models import User, PatientProfile, DoctorProfile, Specialization, DoctorS
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password', 'role']
+        fields = ['username', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
-    
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = User(**validated_data)
-        user.set_password(password)  
+        user = User(username=validated_data['username'])
+        user.set_password(validated_data['password'])
         user.save()
         return user
 
 
-class LoginUserSerilalizer(serializers.Serializer):
+class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
